@@ -1,0 +1,1 @@
+- `search_with_filters` method to be updated with LLM integration
