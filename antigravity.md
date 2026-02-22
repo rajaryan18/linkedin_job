@@ -33,3 +33,20 @@ This file tracks the stages of the LinkedIn Job Scraper refactor.
     - Refactored tests to use `pytest` fixtures and assertions.
     - Installed `pytest` dependency.
     - Verified all tests pass using `pytest`.
+
+## Stage 5: LinkedIn Member Search
+- **Date:** 2026-02-20
+- **Status:** Completed
+- **Changes:**
+    - Created `LinkedInMemberSearcher` class in `api/core/`.
+    - Implemented `get_members` using search engine scraping (Google) to find public profile URLs.
+    - Added unit tests in `test/api/core/test_LinkedInMemberSearcher.py` with mocked responses.
+    - Verified all tests pass using `pytest`.
+
+## Stage 6: Search Engine Agnostic Design
+- **Date:** 2026-02-22
+- **Status:** Completed
+- **Changes:**
+    - Refactored `LinkedInMemberSearcher` to use search engine agnostic design.
+    - Implemented `SearchEngineFactory` to manage search engine instances.
+    - Added support for multiple search engines (e.g., Google).
