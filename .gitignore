@@ -2,3 +2,6 @@ linkedin/
 __pycache__
 .pytest_cache
 *.env
+package-lock.json
+node_modules
+test_jobs_tracker.json
