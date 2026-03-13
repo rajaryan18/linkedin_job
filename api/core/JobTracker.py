@@ -10,7 +10,7 @@ class JobTracker:
     def __init__(self, db: Optional[DatabaseInterface] = None):
         self.db = db if db else DatabaseFactory.get_database()
 
-    def add_job(self, job_id: str, title: str, company: str, location: str, link: str, status: str = "Found", source: str = "linkedin"):
+    def add_job(self, job_id: str, title: str, company: str, location: str, link: str, status: str = "Saved", source: str = "linkedin"):
         """Adds a new job to track."""
         job_data = {
             "job_id": job_id,
@@ -97,6 +97,14 @@ class JobTracker:
         return job
 
     def list_tracked_jobs(self, status: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Lists all tracked jobs, optionally filtered by status."""
+        """Lists all tracked jobs, optionally filtered by status, and includes referrals."""
         filters = {"status": status} if status else None
-        return self.db.list_jobs(filters=filters)
+        jobs = self.db.list_jobs(filters=filters)
+        for job in jobs:
+            job["referrals"] = self.db.list_referrals(job.get("job_id") or job.get("id"))
+        return jobs
+
+    def delete_job(self, job_id: str) -> bool:
+        """Removes a job and its associated referrals."""
+        self.db.delete_referrals(job_id)
+        return self.db.delete_job(job_id)

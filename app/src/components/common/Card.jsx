@@ -12,7 +12,7 @@ const Card = ({ children, title, extra, className = '', animate = false }) => {
         <Component className={`card ${className}`} {...motionProps}>
             {(title || extra) && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    {title && <h3 style={{ margin: 0 }}>{title}</h3>}
+                    {title && <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>{title}</h3>}
                     {extra}
                 </div>
             )}

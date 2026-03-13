@@ -33,49 +33,46 @@ const Login = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'var(--bg-gradient)',
+            background: 'fixed',
             color: 'white'
         }}>
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="login-card"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="glass-panel animate-fade-in"
                 style={{
-                    background: 'rgba(0, 0, 0, 0.05)',
-                    backdropFilter: 'blur(10px)',
-                    padding: '2.5rem',
-                    borderRadius: '24px',
-                    width: '400px',
-                    border: '1px solid rgba(0, 0, 0, 0.1)',
-                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+                    padding: '3rem',
+                    width: '450px',
+                    textAlign: 'center'
                 }}
             >
-                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                    <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'rgba(0, 0, 0, 0.6)' }}>
-                        {isLogin ? 'Welcome Back' : 'Create Account'}
+                <div style={{ marginBottom: '2.5rem' }}>
+                    <div className="brand" style={{ fontSize: '2rem', marginBottom: '1rem' }}>JOBTRACKER</div>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--text)' }}>
+                        {isLogin ? 'Authenticating...' : 'Join Intel'}
                     </h2>
-                    <p style={{ color: 'rgba(0, 0, 0, 0.6)' }}>
-                        {isLogin ? 'Login to continue your job search' : 'Join us to track your applications'}
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                        {isLogin ? 'Welcome back to your career command center.' : 'Initialize your job search tracking system.'}
                     </p>
                 </div>
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', textAlign: 'left' }}>
                     <AnimatePresence mode="wait">
                         {!isLogin && (
                             <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
                                 key="name-field"
                             >
-                                <label style={{ fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block' }}>Name</label>
-                                <div style={{ position: 'relative' }}>
-                                    <User size={18} style={{ position: 'absolute', left: '12px', top: '12px', color: 'rgba(0, 0, 0, 0.4)' }} />
+                                <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>FULL NAME</label>
+                                <div style={{ position: 'relative', marginTop: '0.5rem' }}>
+                                    <User size={18} style={{ position: 'absolute', left: '16px', top: '16px', color: 'var(--text-muted)' }} />
                                     <input
                                         type="text"
-                                        placeholder="Full Name"
+                                        placeholder="Identity Label"
                                         required
-                                        style={{ paddingLeft: '2.5rem', background: 'rgba(0, 0, 0, 0.05)', border: '1px solid rgba(0, 0, 0, 0.1)', color: 'black', width: '100%' }}
+                                        style={{ paddingLeft: '3rem', marginBottom: 0 }}
                                         value={formData.name}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     />
@@ -85,14 +82,14 @@ const Login = () => {
                     </AnimatePresence>
 
                     <div>
-                        <label style={{ fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block' }}>Email</label>
-                        <div style={{ position: 'relative' }}>
-                            <Mail size={18} style={{ position: 'absolute', left: '12px', top: '12px', color: 'rgba(0, 0, 0, 0.4)' }} />
+                        <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>EMAIL ADDRESS</label>
+                        <div style={{ position: 'relative', marginTop: '0.5rem' }}>
+                            <Mail size={18} style={{ position: 'absolute', left: '16px', top: '16px', color: 'var(--text-muted)' }} />
                             <input
                                 type="email"
-                                placeholder="name@company.com"
+                                placeholder="name@domain.com"
                                 required
-                                style={{ paddingLeft: '2.5rem', background: 'rgba(0, 0, 0, 0.05)', border: '1px solid rgba(0, 0, 0, 0.1)', color: 'black', width: '100%' }}
+                                style={{ paddingLeft: '3rem', marginBottom: 0 }}
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             />
@@ -100,14 +97,14 @@ const Login = () => {
                     </div>
 
                     <div>
-                        <label style={{ fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block' }}>Password</label>
-                        <div style={{ position: 'relative' }}>
-                            <Lock size={18} style={{ position: 'absolute', left: '12px', top: '12px', color: 'rgba(0, 0, 0, 0.4)' }} />
+                        <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>SECURITY ACCESS</label>
+                        <div style={{ position: 'relative', marginTop: '0.5rem' }}>
+                            <Lock size={18} style={{ position: 'absolute', left: '16px', top: '16px', color: 'var(--text-muted)' }} />
                             <input
                                 type="password"
                                 placeholder="••••••••"
                                 required
-                                style={{ paddingLeft: '2.5rem', background: 'rgba(0, 0, 0, 0.05)', border: '1px solid rgba(0, 0, 0, 0.1)', color: 'black', width: '100%' }}
+                                style={{ paddingLeft: '3rem', marginBottom: 0 }}
                                 value={formData.password}
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             />
@@ -115,24 +112,32 @@ const Login = () => {
                     </div>
 
                     {error && (
-                        <p style={{ color: '#ff4d4d', fontSize: '0.875rem', margin: 0, textAlign: 'center' }}>
+                        <div style={{ 
+                          padding: '0.75rem', 
+                          background: 'rgba(244, 63, 94, 0.1)', 
+                          border: '1px solid rgba(244, 63, 94, 0.2)', 
+                          borderRadius: '12px',
+                          color: '#fb7185',
+                          fontSize: '0.8rem',
+                          textAlign: 'center'
+                        }}>
                             {error}
-                        </p>
+                        </div>
                     )}
 
-                    <button type="submit" className="primary" style={{ marginTop: '0.5rem', padding: '0.875rem', borderRadius: '12px' }}>
-                        {isLogin ? <LogIn size={18} /> : <UserPlus size={18} />}
-                        {isLogin ? 'Login' : 'Sign Up'}
+                    <button type="submit" className="primary" style={{ marginTop: '1rem', height: '52px' }}>
+                        {isLogin ? <LogIn size={20} /> : <UserPlus size={20} />}
+                        {isLogin ? 'ACCESS DASHBOARD' : 'INITIALIZE PROFILE'}
                     </button>
                 </form>
 
-                <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem', color: 'rgba(0, 0, 0, 0.6)' }}>
-                    {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
+                <p style={{ marginTop: '2rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                    {isLogin ? "New to the platform?" : "Already registered?"}{' '}
                     <button
                         onClick={() => setIsLogin(!isLogin)}
-                        style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}
+                        style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 700, padding: 0 }}
                     >
-                        {isLogin ? 'Sign Up' : 'Login'}
+                        {isLogin ? 'Request Access' : 'Secure Login'}
                     </button>
                 </p>
             </motion.div>

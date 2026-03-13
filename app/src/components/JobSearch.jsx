@@ -5,27 +5,33 @@ import Loader from './common/Loader';
 
 const JobSearch = ({ jobs, trackedJobs, loading, searchParams, setSearchParams, onSearch, onTrack }) => {
     return (
-        <div className="tab-content">
-            <Card>
-                <form onSubmit={onSearch} className="grid" style={{ gridTemplateColumns: '1fr 1fr auto', alignItems: 'center' }}>
-                    <input
-                        placeholder="Job Role"
-                        value={searchParams.role}
-                        onChange={(e) => setSearchParams({ ...searchParams, role: e.target.value })}
-                    />
-                    <input
-                        placeholder="Location"
-                        value={searchParams.location}
-                        onChange={(e) => setSearchParams({ ...searchParams, location: e.target.value })}
-                    />
-                    <button type="submit" className="primary" style={{ marginBottom: '1rem' }} disabled={loading}>
+        <div className="animate-fade-in">
+            <Card style={{ marginBottom: '2rem' }}>
+                <form onSubmit={onSearch} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '1rem', alignItems: 'start' }}>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                          placeholder="Job Role (e.g. Software Engineer)"
+                          value={searchParams.role}
+                          onChange={(e) => setSearchParams({ ...searchParams, role: e.target.value })}
+                          style={{ marginBottom: 0 }}
+                      />
+                    </div>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                          placeholder="Location (e.g. Remote)"
+                          value={searchParams.location}
+                          onChange={(e) => setSearchParams({ ...searchParams, location: e.target.value })}
+                          style={{ marginBottom: 0 }}
+                      />
+                    </div>
+                    <button type="submit" className="primary" style={{ height: '48px' }} disabled={loading}>
                         <Search size={18} />
                         Search
                     </button>
                 </form>
             </Card>
 
-            {loading && <Loader text="Searching for jobs..." />}
+            {loading && <Loader text="Scouring LinkedIn for opportunities..." />}
 
             {!loading && (
                 <div className="grid">
@@ -34,29 +40,30 @@ const JobSearch = ({ jobs, trackedJobs, loading, searchParams, setSearchParams, 
                             key={job.job_id}
                             animate
                             title={job.title}
-                            extra={<a href={job.link} target="_blank" rel="noreferrer"><ExternalLink size={18} /></a>}
+                            extra={<a href={job.link} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)' }}><ExternalLink size={18} /></a>}
                         >
-                            <div style={{ color: 'var(--text-muted)', margin: '0.5rem 0' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Building2 size={16} /> {job.company}
+                            <div style={{ color: 'var(--text-muted)', margin: '1rem 0' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                    <Building2 size={16} /> <span style={{ fontWeight: 600, color: 'var(--text)' }}>{job.company}</span>
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     <MapPin size={16} /> {job.location}
                                 </div>
                             </div>
                             <button
-                                className="primary"
-                                style={{ width: '100%', marginTop: '1rem', background: '#ecf3ff', color: 'var(--primary)' }}
+                                className={trackedJobs.some(tj => tj.job_id === job.job_id) ? "secondary" : "primary"}
+                                style={{ width: '100%', marginTop: '0.5rem' }}
                                 onClick={() => onTrack(job)}
                                 disabled={trackedJobs.some(tj => tj.job_id === job.job_id)}
                             >
-                                {trackedJobs.some(tj => tj.job_id === job.job_id) ? 'Tracked' : 'Track Application'}
+                                {trackedJobs.some(tj => tj.job_id === job.job_id) ? 'Already Tracked' : 'Track Application'}
                             </button>
                         </Card>
                     ))}
                 </div>
             )}
         </div>
+
     );
 };
 

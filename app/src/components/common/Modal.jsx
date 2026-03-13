@@ -35,10 +35,12 @@ const Modal = ({ isOpen, onClose, title, children }) => {
                             style={{
                                 width: '90%',
                                 maxWidth: '500px',
-                                background: 'white',
+                                background: 'var(--panel-bg)',
+                                backdropFilter: 'blur(20px)',
                                 padding: '2rem',
-                                borderRadius: '16px',
-                                boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
+                                borderRadius: '24px',
+                                border: '1px solid var(--glass-border)',
+                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
                                 position: 'relative'
                             }}
                         >

@@ -23,10 +23,7 @@ export const updateJobStatus = (jobId, data) => api.patch(`/jobs/tracked/${jobId
 export const addReferral = (jobId, referralData) => api.post(`/jobs/tracked/${jobId}/referral`, referralData);
 export const followUpReferral = (jobId, referralId) => api.post(`/jobs/tracked/${jobId}/referral/${referralId}/followup`);
 export const addCustomJob = (jobData) => api.post('/jobs/custom', jobData);
-export const analyzeResume = (formData) => api.post('/ai/analyze', formData, {
-  headers: {
-    'Content-Type': 'multipart/form-data',
-  },
-});
-
+export const deleteJob = (jobId) => api.delete(`/jobs/tracked/${jobId}`);
+// End of api.js
 export default api;
+

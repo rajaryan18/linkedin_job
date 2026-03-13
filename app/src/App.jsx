@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useJobs } from './hooks/useJobs';
-import { useAI } from './hooks/useAI';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import JobSearch from './components/JobSearch';
-import AIOptimizer from './components/AIOptimizer';
 import JobTracker from './components/JobTracker';
+import KanbanBoard from './components/KanbanBoard';
+import InsightsDashboard from './components/InsightsDashboard';
 import Login from './components/Login';
 
 const App = () => {
@@ -24,16 +24,9 @@ const App = () => {
     updateStatus,
     createReferral,
     followUp,
-    createCustomJob
+    createCustomJob,
+    removeJob
   } = useJobs();
-
-  const {
-    analysis,
-    loading: aiLoading,
-    analysisInput,
-    setAnalysisInput,
-    analyze
-  } = useAI();
 
   if (!user) {
     return <Login />;
@@ -44,10 +37,10 @@ const App = () => {
       <AnimatePresence mode="wait">
         <motion.div
           key={activeTab}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 20 }}
-          transition={{ duration: 0.2 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
         >
           {activeTab === 'search' && (
             <JobSearch
@@ -61,16 +54,6 @@ const App = () => {
             />
           )}
 
-          {activeTab === 'ai' && (
-            <AIOptimizer
-              analysis={analysis}
-              loading={aiLoading}
-              analysisInput={analysisInput}
-              setAnalysisInput={setAnalysisInput}
-              onAnalyze={analyze}
-            />
-          )}
-
           {activeTab === 'tracked' && (
             <JobTracker
               trackedJobs={trackedJobs}
@@ -78,6 +61,21 @@ const App = () => {
               onCreateReferral={createReferral}
               onFollowUp={followUp}
               onCreateCustomJob={createCustomJob}
+              onRemoveJob={removeJob}
+            />
+          )}
+
+          {activeTab === 'kanban' && (
+            <KanbanBoard
+              trackedJobs={trackedJobs}
+              onUpdateStatus={updateStatus}
+              onRemoveJob={removeJob}
+            />
+          )}
+
+          {activeTab === 'insights' && (
+            <InsightsDashboard
+              trackedJobs={trackedJobs}
             />
           )}
         </motion.div>
@@ -87,3 +85,4 @@ const App = () => {
 };
 
 export default App;
+

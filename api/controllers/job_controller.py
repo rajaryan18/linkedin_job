@@ -42,8 +42,12 @@ def get_tracked_jobs():
     jobs = tracker.list_tracked_jobs()
     return jsonify(jobs)
 
-@job_bp.route('/tracked/<job_id>', methods=['PATCH'])
-def update_tracked_job(job_id):
+@job_bp.route('/tracked/<job_id>', methods=['PATCH', 'DELETE'])
+def handle_tracked_job(job_id):
+    if request.method == 'DELETE':
+        success = tracker.delete_job(job_id)
+        return jsonify({"success": success})
+    
     data = request.json
     if 'status' in data:
         tracker.update_status(job_id, data['status'])

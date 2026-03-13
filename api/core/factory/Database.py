@@ -39,6 +39,14 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
+    def delete_job(self, job_id: str) -> bool:
+        pass
+
+    @abstractmethod
+    def delete_referrals(self, job_id: str) -> bool:
+        pass
+
+    @abstractmethod
     def save_user(self, user_data: Dict[str, Any]) -> bool:
         pass
 
@@ -136,6 +144,22 @@ class JsonDatabase(DatabaseInterface):
         self._write_db(db)
         return True
 
+    def delete_job(self, job_id: str) -> bool:
+        db = self._read_db()
+        if job_id not in db["jobs"]:
+            return False
+        del db["jobs"][job_id]
+        self._write_db(db)
+        return True
+
+    def delete_referrals(self, job_id: str) -> bool:
+        db = self._read_db()
+        referral_ids_to_delete = [rid for rid, r in db["referrals"].items() if r.get("job_id") == job_id]
+        for rid in referral_ids_to_delete:
+            del db["referrals"][rid]
+        self._write_db(db)
+        return True
+
 class MongoDatabase(DatabaseInterface):
     """
     MongoDB implementation of the DatabaseInterface.
@@ -190,6 +214,22 @@ class MongoDatabase(DatabaseInterface):
             return result.modified_count > 0
         except Exception as e:
             print(f"MongoDB update referral error: {e}")
+            return False
+
+    def delete_job(self, job_id: str) -> bool:
+        try:
+            self.jobs_coll.delete_one({"job_id": job_id})
+            return True
+        except Exception as e:
+            print(f"MongoDB delete job error: {e}")
+            return False
+
+    def delete_referrals(self, job_id: str) -> bool:
+        try:
+            self.refs_coll.delete_many({"job_id": job_id})
+            return True
+        except Exception as e:
+            print(f"MongoDB delete referrals error: {e}")
             return False
 
     def save_user(self, user_data: Dict[str, Any]) -> bool:

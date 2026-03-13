@@ -78,6 +78,15 @@ export const useJobs = () => {
         }
     };
 
+    const removeJob = async (jobId) => {
+        try {
+            await api.deleteJob(jobId);
+            await fetchTrackedJobs();
+        } catch (err) {
+            console.error('Failed to delete job:', err);
+        }
+    };
+
     return {
         jobs,
         trackedJobs,
@@ -90,6 +99,7 @@ export const useJobs = () => {
         createReferral,
         followUp,
         createCustomJob,
+        removeJob,
         fetchTrackedJobs
     };
 };
