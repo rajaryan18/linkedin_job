@@ -44,12 +44,12 @@ const JobTracker = ({ trackedJobs, onUpdateStatus, onCreateReferral, onFollowUp,
             <div className="grid">
                 {trackedJobs.map((job) => (
                     <Card 
-                      key={job._id || job.id} 
+                      key={job.job_id} 
                       title={job.title} 
                       animate
                       extra={
                         <button 
-                          onClick={() => onRemoveJob(job._id || job.id)}
+                          onClick={() => onRemoveJob(job.job_id)}
                           style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.5rem' }}
                           title="Remove from tracking"
                         >
@@ -113,7 +113,7 @@ const JobTracker = ({ trackedJobs, onUpdateStatus, onCreateReferral, onFollowUp,
                                             </div>
                                         </div>
                                         <button
-                                            onClick={() => onFollowUp(job._id || job.id, ref.id)}
+                                            onClick={() => onFollowUp(job.job_id, ref.id)}
                                             className="tab-btn"
                                             style={{
                                                 fontSize: '0.75rem',

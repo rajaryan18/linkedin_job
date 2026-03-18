@@ -15,35 +15,35 @@ class DatabaseInterface(ABC):
     Abstract base class for Database implementations (Strategy Pattern).
     """
     @abstractmethod
-    def save_job(self, job_data: Dict[str, Any]) -> bool:
+    def save_job(self, job_data: Dict[str, Any], user_id: str) -> bool:
         pass
 
     @abstractmethod
-    def get_job(self, job_id: str) -> Optional[Dict[str, Any]]:
+    def get_job(self, job_id: str, user_id: str) -> Optional[Dict[str, Any]]:
         pass
 
     @abstractmethod
-    def update_job(self, job_id: str, updates: Dict[str, Any]) -> bool:
+    def update_job(self, job_id: str, user_id: str, updates: Dict[str, Any]) -> bool:
         pass
 
     @abstractmethod
-    def list_jobs(self, filters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+    def list_jobs(self, user_id: str, filters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         pass
 
     @abstractmethod
-    def save_referral(self, referral_data: Dict[str, Any]) -> bool:
+    def save_referral(self, referral_data: Dict[str, Any], user_id: str) -> bool:
         pass
 
     @abstractmethod
-    def list_referrals(self, job_id: Optional[str] = None) -> List[Dict[str, Any]]:
+    def list_referrals(self, user_id: str, job_id: Optional[str] = None) -> List[Dict[str, Any]]:
         pass
 
     @abstractmethod
-    def delete_job(self, job_id: str) -> bool:
+    def delete_job(self, job_id: str, user_id: str) -> bool:
         pass
 
     @abstractmethod
-    def delete_referrals(self, job_id: str) -> bool:
+    def delete_referrals(self, job_id: str, user_id: str) -> bool:
         pass
 
     @abstractmethod
@@ -71,6 +71,8 @@ class JsonDatabase(DatabaseInterface):
                 data = {"jobs": data, "referrals": {}, "users": {}}
             if "users" not in data:
                 data["users"] = {}
+            if "referrals" not in data:
+                data["referrals"] = {}
             return data
 
     def save_user(self, user_data: Dict[str, Any]) -> bool:
@@ -88,50 +90,58 @@ class JsonDatabase(DatabaseInterface):
         with open(self.filename, 'w') as f:
             json.dump(data, f, indent=4)
 
-    def save_job(self, job_data: Dict[str, Any]) -> bool:
+    def _get_job_key(self, user_id: str, job_id: str) -> str:
+        return f"{user_id}_{job_id}"
+
+    def save_job(self, job_data: Dict[str, Any], user_id: str) -> bool:
         db = self._read_db()
         job_id = job_data.get("job_id")
         if not job_id:
             return False
-        db["jobs"][job_id] = job_data
+        key = self._get_job_key(user_id, job_id)
+        job_data["user_id"] = user_id
+        db["jobs"][key] = job_data
         self._write_db(db)
         return True
 
-    def get_job(self, job_id: str) -> Optional[Dict[str, Any]]:
+    def get_job(self, job_id: str, user_id: str) -> Optional[Dict[str, Any]]:
         db = self._read_db()
-        return db["jobs"].get(job_id)
+        key = self._get_job_key(user_id, job_id)
+        return db["jobs"].get(key)
 
-    def update_job(self, job_id: str, updates: Dict[str, Any]) -> bool:
+    def update_job(self, job_id: str, user_id: str, updates: Dict[str, Any]) -> bool:
         db = self._read_db()
-        if job_id not in db["jobs"]:
+        key = self._get_job_key(user_id, job_id)
+        if key not in db["jobs"]:
             return False
-        db["jobs"][job_id].update(updates)
+        db["jobs"][key].update(updates)
         self._write_db(db)
         return True
 
-    def list_jobs(self, filters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+    def list_jobs(self, user_id: str, filters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         db = self._read_db()
-        jobs = list(db["jobs"].values())
+        user_jobs = [job for job in db["jobs"].values() if job.get("user_id") == user_id]
         if filters:
             filtered_jobs = []
-            for job in jobs:
+            for job in user_jobs:
                 if all(job.get(k) == v for k, v in filters.items()):
                     filtered_jobs.append(job)
             return filtered_jobs
-        return jobs
+        return user_jobs
 
-    def save_referral(self, referral_data: Dict[str, Any]) -> bool:
+    def save_referral(self, referral_data: Dict[str, Any], user_id: str) -> bool:
         db = self._read_db()
         ref_id = referral_data.get("id")
         if not ref_id:
             return False
+        referral_data["user_id"] = user_id
         db["referrals"][ref_id] = referral_data
         self._write_db(db)
         return True
 
-    def list_referrals(self, job_id: Optional[str] = None) -> List[Dict[str, Any]]:
+    def list_referrals(self, user_id: str, job_id: Optional[str] = None) -> List[Dict[str, Any]]:
         db = self._read_db()
-        referrals = list(db["referrals"].values())
+        referrals = [r for r in db["referrals"].values() if r.get("user_id") == user_id]
         if job_id:
             return [r for r in referrals if r.get("job_id") == job_id]
         return referrals
@@ -144,17 +154,19 @@ class JsonDatabase(DatabaseInterface):
         self._write_db(db)
         return True
 
-    def delete_job(self, job_id: str) -> bool:
+    def delete_job(self, job_id: str, user_id: str) -> bool:
         db = self._read_db()
-        if job_id not in db["jobs"]:
+        key = self._get_job_key(user_id, job_id)
+        if key not in db["jobs"]:
             return False
-        del db["jobs"][job_id]
+        del db["jobs"][key]
         self._write_db(db)
         return True
 
-    def delete_referrals(self, job_id: str) -> bool:
+    def delete_referrals(self, job_id: str, user_id: str) -> bool:
         db = self._read_db()
-        referral_ids_to_delete = [rid for rid, r in db["referrals"].items() if r.get("job_id") == job_id]
+        referral_ids_to_delete = [rid for rid, r in db["referrals"].items() 
+                                if r.get("job_id") == job_id and r.get("user_id") == user_id]
         for rid in referral_ids_to_delete:
             del db["referrals"][rid]
         self._write_db(db)
@@ -173,39 +185,45 @@ class MongoDatabase(DatabaseInterface):
         self.refs_coll = self.db["referrals"]
         self.users_coll = self.db["users"]
 
-    def save_job(self, job_data: Dict[str, Any]) -> bool:
+    def save_job(self, job_data: Dict[str, Any], user_id: str) -> bool:
         try:
-            self.jobs_coll.replace_one({"job_id": job_data["job_id"]}, job_data, upsert=True)
+            job_data["user_id"] = user_id
+            self.jobs_coll.replace_one({"job_id": job_data["job_id"], "user_id": user_id}, job_data, upsert=True)
             return True
         except Exception as e:
             print(f"MongoDB save job error: {e}")
             return False
 
-    def get_job(self, job_id: str) -> Optional[Dict[str, Any]]:
-        return self.jobs_coll.find_one({"job_id": job_id}, {"_id": 0})
+    def get_job(self, job_id: str, user_id: str) -> Optional[Dict[str, Any]]:
+        return self.jobs_coll.find_one({"job_id": job_id, "user_id": user_id}, {"_id": 0})
 
-    def update_job(self, job_id: str, updates: Dict[str, Any]) -> bool:
+    def update_job(self, job_id: str, user_id: str, updates: Dict[str, Any]) -> bool:
         try:
-            result = self.jobs_coll.update_one({"job_id": job_id}, {"$set": updates})
-            return result.modified_count > 0
+            result = self.jobs_coll.update_one({"job_id": job_id, "user_id": user_id}, {"$set": updates})
+            return result.matched_count > 0
         except Exception as e:
             print(f"MongoDB update job error: {e}")
             return False
 
-    def list_jobs(self, filters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
-        query = filters if filters else {}
+    def list_jobs(self, user_id: str, filters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+        query = {"user_id": user_id}
+        if filters:
+            query.update(filters)
         return list(self.jobs_coll.find(query, {"_id": 0}))
 
-    def save_referral(self, referral_data: Dict[str, Any]) -> bool:
+    def save_referral(self, referral_data: Dict[str, Any], user_id: str) -> bool:
         try:
-            self.refs_coll.replace_one({"id": referral_data["id"]}, referral_data, upsert=True)
+            referral_data["user_id"] = user_id
+            self.refs_coll.replace_one({"id": referral_data["id"], "user_id": user_id}, referral_data, upsert=True)
             return True
         except Exception as e:
             print(f"MongoDB save referral error: {e}")
             return False
 
-    def list_referrals(self, job_id: Optional[str] = None) -> List[Dict[str, Any]]:
-        query = {"job_id": job_id} if job_id else {}
+    def list_referrals(self, user_id: str, job_id: Optional[str] = None) -> List[Dict[str, Any]]:
+        query = {"user_id": user_id}
+        if job_id:
+            query["job_id"] = job_id
         return list(self.refs_coll.find(query, {"_id": 0}))
 
     def update_referral(self, referral_id: str, updates: Dict[str, Any]) -> bool:
@@ -216,17 +234,17 @@ class MongoDatabase(DatabaseInterface):
             print(f"MongoDB update referral error: {e}")
             return False
 
-    def delete_job(self, job_id: str) -> bool:
+    def delete_job(self, job_id: str, user_id: str) -> bool:
         try:
-            self.jobs_coll.delete_one({"job_id": job_id})
+            self.jobs_coll.delete_one({"job_id": job_id, "user_id": user_id})
             return True
         except Exception as e:
             print(f"MongoDB delete job error: {e}")
             return False
 
-    def delete_referrals(self, job_id: str) -> bool:
+    def delete_referrals(self, job_id: str, user_id: str) -> bool:
         try:
-            self.refs_coll.delete_many({"job_id": job_id})
+            self.refs_coll.delete_many({"job_id": job_id, "user_id": user_id})
             return True
         except Exception as e:
             print(f"MongoDB delete referrals error: {e}")

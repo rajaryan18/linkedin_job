@@ -5,7 +5,7 @@
   --primary-glow: rgba(99, 102, 241, 0.4);
   --secondary: #a855f7;
   --bg: #0f172a;
-  --panel-bg: rgba(30, 41, 59, 0.7);
+  --panel-bg: #1e293b; /* More opaque background for visibility */
   --card-bg: rgba(255, 255, 255, 0.03);
   --text: #f8fafc;
   --text-muted: #94a3b8;

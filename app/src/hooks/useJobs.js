@@ -6,6 +6,7 @@ export const useJobs = () => {
     const [trackedJobs, setTrackedJobs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchParams, setSearchParams] = useState({ role: 'Software Engineer', location: 'Remote' });
+    const [currentPage, setCurrentPage] = useState(1);
 
     const fetchTrackedJobs = async () => {
         try {
@@ -23,6 +24,7 @@ export const useJobs = () => {
     const search = async (e) => {
         if (e) e.preventDefault();
         setLoading(true);
+        setCurrentPage(1); // Reset page on new search
         try {
             const res = await api.searchJobs(searchParams.role, searchParams.location);
             setJobs(res.data);
@@ -100,6 +102,8 @@ export const useJobs = () => {
         followUp,
         createCustomJob,
         removeJob,
-        fetchTrackedJobs
+        fetchTrackedJobs,
+        currentPage,
+        setCurrentPage
     };
 };

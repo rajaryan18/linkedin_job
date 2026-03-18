@@ -1,6 +1,8 @@
 import jwt
 import bcrypt
 import os
+from functools import wraps
+from flask import request, jsonify
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 from .factory.Database import DatabaseFactory
@@ -9,6 +11,31 @@ class Auth:
     def __init__(self):
         self.db = DatabaseFactory.get_database()
         self.secret_key = os.getenv("JWT_SECRET", "secret")
+
+    @staticmethod
+    def token_required(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            token = None
+            if 'Authorization' in request.headers:
+                auth_header = request.headers['Authorization']
+                if auth_header.startswith('Bearer '):
+                    token = auth_header.split(" ")[1]
+            
+            if not token:
+                return jsonify({'message': 'Token is missing!'}), 401
+            
+            try:
+                # We need an instance to get the secret_key, or just use getenv here
+                secret = os.getenv("JWT_SECRET", "secret")
+                data = jwt.decode(token, secret, algorithms=['HS256'])
+                current_user_id = data['user_id']
+            except Exception as e:
+                return jsonify({'message': 'Token is invalid!', 'error': str(e)}), 401
+            
+            return f(current_user_id, *args, **kwargs)
+        
+        return decorated
 
     def hash_password(self, password: str) -> str:
         return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -32,8 +59,6 @@ class Auth:
             return None
 
     def signup(self, email: str, password: str, name: str) -> Dict[str, Any]:
-        # Implementation depends on database interface supporting users
-        # For now, we'll use a generic approach or extend the interface
         password_hash = self.hash_password(password)
         user_data = {
             "email": email,
@@ -41,18 +66,12 @@ class Auth:
             "name": name,
             "created_at": datetime.utcnow().isoformat()
         }
-        # We need a save_user method in the interface
-        # For simplicity in this iteration, we'll use a generic collection/file
-        # but ideally the interface should have save_user
         if hasattr(self.db, "save_user"):
              return {"success": self.db.save_user(user_data)}
         
-        # Fallback to a generic storage if interface isn't updated yet
-        # (This is just for demonstration, in a real app we'd update the interface)
         return {"success": False, "message": "Database interface not ready for users"}
 
     def login(self, email: str, password: str) -> Optional[Dict[str, Any]]:
-        # Again, depends on get_user_by_email
         if hasattr(self.db, "get_user_by_email"):
             user = self.db.get_user_by_email(email)
             if user and self.check_password(password, user['password_hash']):

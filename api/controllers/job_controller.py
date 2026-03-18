@@ -1,13 +1,15 @@
 from flask import Blueprint, request, jsonify
 from core.LinkedInJobChecker import LinkedInJobChecker
 from core.JobTracker import JobTracker
+from core.Auth import Auth
 
 job_bp = Blueprint('job', __name__)
 checker = LinkedInJobChecker()
 tracker = JobTracker()
 
 @job_bp.route('/search', methods=['GET'])
-def search_jobs():
+@Auth.token_required
+def search_jobs(user_id):
     role = request.args.get('role', 'Software Engineer')
     location = request.args.get('location', 'Remote')
     pages = int(request.args.get('pages', 1))
@@ -26,9 +28,11 @@ def search_jobs():
     return jsonify(formatted_jobs)
 
 @job_bp.route('/track', methods=['POST'])
-def track_job():
+@Auth.token_required
+def track_job(user_id):
     data = request.json
     success = tracker.add_job(
+        user_id=user_id,
         job_id=data['job_id'],
         title=data['title'],
         company=data['company'],
@@ -38,39 +42,45 @@ def track_job():
     return jsonify({"success": success})
 
 @job_bp.route('/tracked', methods=['GET'])
-def get_tracked_jobs():
-    jobs = tracker.list_tracked_jobs()
+@Auth.token_required
+def get_tracked_jobs(user_id):
+    jobs = tracker.list_tracked_jobs(user_id)
     return jsonify(jobs)
 
 @job_bp.route('/tracked/<job_id>', methods=['PATCH', 'DELETE'])
-def handle_tracked_job(job_id):
+@Auth.token_required
+def handle_tracked_job(user_id, job_id):
     if request.method == 'DELETE':
-        success = tracker.delete_job(job_id)
+        success = tracker.delete_job(user_id, job_id)
         return jsonify({"success": success})
     
     data = request.json
     if 'status' in data:
-        tracker.update_status(job_id, data['status'])
+        tracker.update_status(user_id, job_id, data['status'])
     if 'note' in data:
-        tracker.add_followup(job_id, data['note'])
+        tracker.add_followup(user_id, job_id, data['note'])
     
     return jsonify({"success": True})
 
 @job_bp.route('/tracked/<job_id>/referral', methods=['POST'])
-def add_referral(job_id):
+@Auth.token_required
+def add_referral(user_id, job_id):
     data = request.json
-    success = tracker.add_referral(job_id, data['person'], data.get('date'))
+    success = tracker.add_referral(user_id, job_id, data['person'], data.get('date'))
     return jsonify({"success": success})
 
 @job_bp.route('/tracked/<job_id>/referral/<referral_id>/followup', methods=['POST'])
-def follow_up_referral(job_id, referral_id):
-    success = tracker.follow_up_referral(job_id, referral_id)
+@Auth.token_required
+def follow_up_referral(user_id, job_id, referral_id):
+    success = tracker.follow_up_referral(user_id, job_id, referral_id)
     return jsonify({"success": success})
 
 @job_bp.route('/custom', methods=['POST'])
-def add_custom_job():
+@Auth.token_required
+def add_custom_job(user_id):
     data = request.json
     success = tracker.add_custom_job(
+        user_id=user_id,
         title=data['title'],
         company=data['company'],
         location=data['location'],

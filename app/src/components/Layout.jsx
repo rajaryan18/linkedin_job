@@ -15,8 +15,8 @@ const Layout = ({ children, activeTab, onTabChange }) => {
   return (
     <div className="app-container">
       <header>
-        <div className="brand">LINKEDIN JOB TRACKER</div>
-        
+        <div className="brand">JOB TRACKER</div>
+
         <div className="tabs">
           {tabs.map((tab) => (
             <button
@@ -35,9 +35,9 @@ const Layout = ({ children, activeTab, onTabChange }) => {
             <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{user?.name}</div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{user?.email}</div>
           </div>
-          <button 
+          <button
             onClick={logout}
-            className="tab-btn" 
+            className="tab-btn"
             style={{ padding: '0.5rem', borderRadius: '12px' }}
             title="Logout"
           >

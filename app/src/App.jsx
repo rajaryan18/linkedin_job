@@ -25,7 +25,9 @@ const App = () => {
     createReferral,
     followUp,
     createCustomJob,
-    removeJob
+    removeJob,
+    currentPage,
+    setCurrentPage
   } = useJobs();
 
   if (!user) {
@@ -51,6 +53,8 @@ const App = () => {
               setSearchParams={setSearchParams}
               onSearch={search}
               onTrack={track}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
             />
           )}
 
